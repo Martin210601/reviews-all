@@ -1,0 +1,47 @@
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "nvt2106",
+    "password": "123456"
+}
+
+################################
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+    "username": "nvt21062001",
+    "password": "123456"
+}
+
+
+
+################################
+
+POST http://localhost:5000/api/post/create
+Content-Type: application/json
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NTQ5NDAwOTd9.mKxvSMJ2YEf-PwNp24PkbLj_GjmU7dnIowxfOr4K2Ls
+
+{
+    "title": "test1we",
+    "status": "Du lịch",
+    "description": "test12345",
+    "rate": 5,
+    
+
+}
+################################
+GET http://localhost:5000/news/all
+
+
+################################
+
+GET http://localhost:5000/api/post/profile
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmE3MDcyYmIwZTU3MGI2NzdhYjkwZjciLCJpYXQiOjE2NTUxMTUyNDZ9.9jATrxbMdCgAQ-BG7O5eVy1IUvLkyd6Nx8kCGW8DRv4
+
+
+
+################################
+DELETE http://localhost:5000/api/post/delete/62a70bb2c554084ebe1b0433
+Authorization :Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmE3MDZlNmIwZTU3MGI2NzdhYjkwZjMiLCJpYXQiOjE2NTUxMTYzNjB9.XnWW-yaWMei0CaxoqmxHyBKZ482wIilpSaPFTOdWsPE
