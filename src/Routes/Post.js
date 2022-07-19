@@ -122,6 +122,7 @@ router.get('/favorite', verifyToken, async (req, res) => {
 /// access private 
 router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCount: 1 }, { name: 'uploadedImages', maxCount: 5 }])], async (req, res) => {
     const { thumb, uploadedImages } = req.files
+    console.log(req.files)
     if (thumb) {
 
         var thumbnail = thumb[0].path.split('\\').slice(2).join()
