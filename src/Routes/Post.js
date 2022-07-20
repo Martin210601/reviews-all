@@ -121,7 +121,6 @@ router.get('/favorite', verifyToken, async (req, res) => {
 
 /// Route create posts 
 /// access private 
-<<<<<<< HEAD
 router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCount: 1 },
 { name: 'uploadedImages', maxCount: 5 }])],
     async (req, res) => {
