@@ -154,6 +154,13 @@ router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCoun
             var arrUploadedImages = []
         }
         const { title, status, description, rate, like, slug, views, } = req.body
+<<<<<<< HEAD
+=======
+router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCount: 1 }, { name: 'uploadedImages', maxCount: 5 }])], async (req, res) => {
+    const { thumb, uploadedImages } = req.files
+    console.log(req.files)
+    if (thumb) {
+>>>>>>> 4d44dc6f306e1592c7d4e62616ced7f177cc1ac4
 
         let existingUser;
         try {
