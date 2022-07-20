@@ -5,6 +5,7 @@ const path = require('path')
 const fs = require('fs');
 const uploadFile = require('../Middleware/upload')
 const verifyToken = require('../Middleware/Auth')
+const { cloudinary } = require('../Middleware/cloudiaryconfig')
 const User = require('../models/User')
 const mongoose = require('mongoose');
 
@@ -120,61 +121,76 @@ router.get('/favorite', verifyToken, async (req, res) => {
 
 /// Route create posts 
 /// access private 
-router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCount: 1 }, { name: 'uploadedImages', maxCount: 5 }])], async (req, res) => {
-    const { thumb, uploadedImages } = req.files
-    if (thumb) {
+router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCount: 1 },
+{ name: 'uploadedImages', maxCount: 5 }])],
+    async (req, res) => {
+        const { thumb, uploadedImages } = req.files
+        if (thumb) {
+            try {
+                var thumbnail
+                const result = await cloudinary.uploader.upload(thumb[0].path, {
+                    upload_preset: 'uploadimg',
+                })
+                thumbnail = result.secure_url
+            } catch (error) {
+                console.log('error', error)
+            }
+        } else {
+            var thumbnail = ''
+        }
+        if (uploadedImages) {
+            try {
+                var arrUploadedImages = []
+                for (const x in uploadedImages) {
+                    const result = await cloudinary.uploader.upload(uploadedImages[x].path, {
+                        upload_preset: 'uploadimg'
+                    })
+                    arrUploadedImages.push(result.secure_url)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            var arrUploadedImages = []
+        }
+        const { title, status, description, rate, like, slug, views, } = req.body
 
-        var thumbnail = thumb[0].path.split('\\').slice(2).join()
-    } else {
-        var thumbnail = ''
-    }
-    if (uploadedImages) {
-        var arrUploadedImages = uploadedImages.reduce((acc, curr) => {
-            let arrCurr = [...acc]
-            arrCurr.push(curr.path.split('\\').slice(2).join())
-            return arrCurr
-        }, [])
-    } else {
-        var arrUploadedImages = []
-    }
-    const { title, status, description, rate, like, slug, views, } = req.body
+        let existingUser;
+        try {
+            existingUser = await User.findById(req.userId)
+        }
+        catch (err) {
+            return console.log(err)
+        }
+        if (!existingUser) {
+            return res.status(404).json({ message: 'can not find user' })
+        }
+        try {
+            const newPost = new Post({
+                title,
+                status,
+                description,
+                rate,
+                slug,
+                uploadedImages: arrUploadedImages,
+                views,
+                thumb: thumbnail,
+                like,
+                user: req.userId
 
-    let existingUser;
-    try {
-        existingUser = await User.findById(req.userId)
-    }
-    catch (err) {
-        return console.log(err)
-    }
-    if (!existingUser) {
-        return res.status(404).json({ message: 'can not find user' })
-    }
-    try {
-        const newPost = new Post({
-            title,
-            status,
-            description,
-            rate,
-            slug,
-            uploadedImages: arrUploadedImages,
-            views,
-            thumb: thumbnail,
-            like,
-            user: req.userId
-
-        })
-        const session = await mongoose.startSession()
-        session.startTransaction()
-        await newPost.save({ session })
-        existingUser.posts.push(newPost)
-        await existingUser.save({ session })
-        await session.commitTransaction()
-        res.json({ success: true, message: "created successfully", post: newPost })
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: 'create new post failed' })
-    }
-})
+            })
+            const session = await mongoose.startSession()
+            session.startTransaction()
+            await newPost.save({ session })
+            existingUser.posts.push(newPost)
+            await existingUser.save({ session })
+            await session.commitTransaction()
+            res.json({ success: true, message: "created successfully", post: newPost })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ success: false, message: 'create new post failed' })
+        }
+    })
 
 
 /// update post private
@@ -184,19 +200,32 @@ router.put('/update/:id', [verifyToken, uploadFile.fields([{ name: 'thumb', maxC
     const { title, status, description, rate } = req.body
     const { thumb, uploadedImages } = req.files
     if (thumb) {
-
-        var thumbnail = thumb[0].path.split('\\').slice(2).join()
+        try {
+            var thumbnail1
+            const result = await cloudinary.uploader.upload(thumb[0].path, {
+                upload_preset: 'uploadimg',
+            })
+            thumbnail1 = result.secure_url
+        } catch (error) {
+            console.log('error', error)
+        }
     } else {
-        var thumbnail = ''
+        var thumbnail1 = ''
     }
     if (uploadedImages) {
-        var arrUploadedImages = uploadedImages.reduce((acc, curr) => {
-            let arrCurr = [...acc]
-            arrCurr.push(curr.path.split('\\').slice(2).join())
-            return arrCurr
-        }, [])
+        try {
+            var arrUploadedImages1 = []
+            for (const x in uploadedImages) {
+                const result = await cloudinary.uploader.upload(uploadedImages[x].path, {
+                    upload_preset: 'uploadimg'
+                })
+                arrUploadedImages1.push(result.secure_url)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     } else {
-        var arrUploadedImages = []
+        var arrUploadedImages1 = []
     }
     let updatePost
     (req.files ?
@@ -205,8 +234,8 @@ router.put('/update/:id', [verifyToken, uploadFile.fields([{ name: 'thumb', maxC
             status,
             description,
             rate,
-            uploadedImages: arrUploadedImages,
-            thumb: thumbnail,
+            uploadedImages: arrUploadedImages1,
+            thumb: thumbnail1,
             user: req.userId
         }) :
         (updatePost = {

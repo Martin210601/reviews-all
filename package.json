@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "node index",
+        "start": "node src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "server": "nodemon --inspect src/index.js"
     },
@@ -12,6 +12,7 @@
     "license": "ISC",
     "dependencies": {
         "argon2": "^0.28.5",
+        "cloudinary": "^1.30.0",
         "cors": "^2.8.5",
         "dotenv": "^16.0.1",
         "express": "^4.18.1",

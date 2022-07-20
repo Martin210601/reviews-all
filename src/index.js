@@ -19,13 +19,13 @@ const connectDB = async () => {
         await mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@reviewsall.2rbm2.mongodb.net/?retryWrites=true&w=majority`, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-        })
-
-        console.log('done')
+        }
+        )
     } catch (error) {
         console.log(error.message)
         process.exit(1)
     }
+    console.log('done')
 }
 connectDB()
 
