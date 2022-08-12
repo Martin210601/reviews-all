@@ -54,6 +54,19 @@ router.get('/search', async (req, res) => {
         }
         const skipPost = (pageNumber - 1) * PAGE_SIZE
         try {
+            const searchMatch = await Post.find({
+                "$or": [
+                    {
+                        "title": { $regex: req.query.keyword, $options: '$i' }
+                    },
+                    {
+                        "description": { $regex: req.query.keyword, $options: '$i' }
+                    },
+                    {
+                        "topic": { $regex: req.query.keyword, $options: '$i' }
+                    },
+                ]
+            })
             const result = await Post.find({
                 "$or": [
                     {
@@ -65,11 +78,11 @@ router.get('/search', async (req, res) => {
                     {
                         "topic": { $regex: req.query.keyword, $options: '$i' }
                     },
-
-
                 ]
             }).sort({ createdAt: -1 }).skip(skipPost).limit(PAGE_SIZE).populate('user', ['username'])
-            res.json({ success: true, result, message: 'search post successfully' })
+            const totalSearchMatch = searchMatch.length
+            console.log(totalSearchMatch)
+            res.json({ success: true, result, totalSearchMatch, message: 'search post successfully' })
         } catch (error) {
             console.log(error)
             res.status(404).json({ success: false, message: 'not found posts' })
