@@ -10,7 +10,7 @@ const PostSchema = new Schema({
         required: true,
 
     },
-    status: {
+    topic: {
         type: String,
         required: true,
         enum: ['TRAVEL', 'FOOD']

@@ -32,9 +32,7 @@ router.get('/profile', verifyToken, async (req, res,) => {
             res.status(404).json({ success: false, message: 'not found posts' })
         }
     } else {
-
         try {
-
             const myPost = await Post.find({ user: req.userId }).populate('user', ['username'])
 
             res.json({ success: true, myPost, })
@@ -45,7 +43,41 @@ router.get('/profile', verifyToken, async (req, res,) => {
     }
 })
 
+// SEARCH by name
 
+router.get('/search', async (req, res) => {
+    const page = req.query.page
+    if (page) {
+        let pageNumber = parseInt(page)
+        if (pageNumber < 1) {
+            let pageNumber = 1
+        }
+        const skipPost = (pageNumber - 1) * PAGE_SIZE
+        try {
+            const result = await Post.find({
+                "$or": [
+                    {
+                        "title": { $regex: req.query.keyword, $options: '$i' }
+                    },
+                    {
+                        "description": { $regex: req.query.keyword, $options: '$i' }
+                    },
+                    {
+                        "topic": { $regex: req.query.keyword, $options: '$i' }
+                    },
+
+
+                ]
+            }).sort({ createdAt: -1 }).skip(skipPost).limit(PAGE_SIZE).populate('user', ['username'])
+            res.json({ success: true, result, message: 'search post successfully' })
+        } catch (error) {
+            console.log(error)
+            res.status(404).json({ success: false, message: 'not found posts' })
+        }
+
+    }
+
+})
 
 // LIKE AND DISLIKE POST 
 
@@ -153,7 +185,7 @@ router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCoun
         } else {
             var arrUploadedImages = []
         }
-        const { title, status, description, rate, like, slug, views, } = req.body
+        const { title, topic, description, rate, like, slug, views, } = req.body
 
         let existingUser;
         try {
@@ -168,7 +200,7 @@ router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCoun
         try {
             const newPost = new Post({
                 title,
-                status,
+                topic,
                 description,
                 rate,
                 slug,
@@ -197,7 +229,7 @@ router.post('/create', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCoun
 
 
 router.put('/update/:id', [verifyToken, uploadFile.fields([{ name: 'thumb', maxCount: 1 }, { name: 'uploadedImages', maxCount: 5 }])], async (req, res) => {
-    const { title, status, description, rate } = req.body
+    const { title, topic, description, rate } = req.body
     const { thumb, uploadedImages } = req.files
     if (thumb) {
         try {
@@ -231,7 +263,7 @@ router.put('/update/:id', [verifyToken, uploadFile.fields([{ name: 'thumb', maxC
     (req.files ?
         (updatePost = {
             title,
-            status,
+            topic,
             description,
             rate,
             uploadedImages: arrUploadedImages1,
@@ -240,7 +272,7 @@ router.put('/update/:id', [verifyToken, uploadFile.fields([{ name: 'thumb', maxC
         }) :
         (updatePost = {
             title,
-            status,
+            topic,
             description,
             rate,
             user: req.userId
