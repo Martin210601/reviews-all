@@ -81,7 +81,6 @@ router.get('/search', async (req, res) => {
                 ]
             }).sort({ createdAt: -1 }).skip(skipPost).limit(PAGE_SIZE).populate('user', ['username'])
             const totalSearchMatch = searchMatch.length
-            console.log(totalSearchMatch)
             res.json({ success: true, result, totalSearchMatch, message: 'search post successfully' })
         } catch (error) {
             console.log(error)
